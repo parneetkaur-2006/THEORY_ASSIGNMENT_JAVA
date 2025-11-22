@@ -1,180 +1,146 @@
-// import java.util.Scanner;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 
-// class Account {
-//     private int accountNumber;
-//     private String accountHolderName;
-//     private double balance;
-//     private String email;
-//     private String phoneNumber;
+// Custom Exception Class
+class InvalidMarksException extends Exception {
+    public InvalidMarksException(String message) {
+        super(message);
+    }
+}
 
-//     public Account(int accountNumber, String accountHolderName, double balance, String email, String phoneNumber) {
-//         this.accountNumber = accountNumber;
-//         this.accountHolderName = accountHolderName;
-//         this.balance = balance;
-//         this.email = email;
-//         this.phoneNumber = phoneNumber;
-//     }
+// Student Class
+class Student {
+    private int rollNumber;
+    private String studentName;
+    private int[] marks = new int[3];
 
-//     public int getAccountNumber() {
-//         return accountNumber;
-//     }
+    public Student(int rollNumber, String studentName, int[] marks) {
+        this.rollNumber = rollNumber;
+        this.studentName = studentName;
+        this.marks = marks;
+    }
 
-//     public void deposit(double amount) {
-//         if (amount > 0) {
-//             balance += amount;
-//             System.out.println("Amount deposited successfully!");
-//         } else {
-//             System.out.println("Invalid deposit amount!");
-//         }
-//     }
+    public void validateMarks() throws InvalidMarksException {
+        for (int i = 0; i < marks.length; i++) {
+            if (marks[i] < 0 || marks[i] > 100) {
+                throw new InvalidMarksException("Invalid marks for Subject " + (i + 1) + ": " + marks[i]);
+            }
+        }
+    }
 
-//     public void withdraw(double amount) {
-//         if (amount > 0 && amount <= balance) {
-//             balance -= amount;
-//             System.out.println("Amount withdrawn successfully!");
-//         } else if (amount > balance) {
-//             System.out.println("Insufficient balance!");
-//         } else {
-//             System.out.println("Invalid withdrawal amount!");
-//         }
-//     }
+    public double calculateAverage() {
+        int sum = 0;
+        for (int mark : marks) {
+            sum += mark;
+        }
+        return sum / 3.0;
+    }
 
-//     public void updateContactDetails(String email, String phoneNumber) {
-//         this.email = email;
-//         this.phoneNumber = phoneNumber;
-//         System.out.println("Contact details updated successfully!");
-//     }
+    public void displayResult() {
+        System.out.println("\n---- Student Result ----");
+        System.out.println("Roll Number: " + rollNumber);
+        System.out.println("Name: " + studentName);
+        System.out.println("Marks: ");
+        for (int i = 0; i < marks.length; i++) {
+            System.out.println("Subject " + (i + 1) + ": " + marks[i]);
+        }
 
-//     public void displayAccountDetails() {
-//         System.out.println("\n------- Account Details -------");
-//         System.out.println("Account Number: " + accountNumber);
-//         System.out.println("Account Holder Name: " + accountHolderName);
-//         System.out.println("Balance: ₹" + balance);
-//         System.out.println("Email: " + email);
-//         System.out.println("Phone Number: " + phoneNumber);
-        
-//     }
-// }
+        double avg = calculateAverage();
+        System.out.println("Average Marks: " + avg);
 
-// public class BankApplication {
-//     private static Account[] accounts = new Account[100];
-//     private static int accountCount = 0;
-//     private static int accountNumberGenerator = 1001;
-//     private static Scanner sc = new Scanner(System.in);
+        if (avg >= 40)
+            System.out.println("Result: PASS");
+        else
+            System.out.println("Result: FAIL");
+        System.out.println("------------------------");
+    }
 
-//     public static void main(String[] args) {
-//         mainMenu();
-//     }
+    public int getRollNumber() {
+        return rollNumber;
+    }
+}
 
-//     public static void mainMenu() {
-//         while (true) {
-//             System.out.println("\nWelcome to the Banking Application!");
-//             System.out.println("1. Create a new account");
-//             System.out.println("2. Deposit money");
-//             System.out.println("3. Withdraw money");
-//             System.out.println("4. View account details");
-//             System.out.println("5. Update contact details");
-//             System.out.println("6. Exit");
-//             System.out.print("Enter your choice: ");
 
-//             int choice = sc.nextInt();
-//             sc.nextLine(); 
+// Main Class
+public class StudentResultManagementSystem {
 
-//             switch (choice) {
-//                 case 1: createAccount(); break;
-//                 case 2: performDeposit(); break;
-//                 case 3: performWithdrawal(); break;
-//                 case 4: showAccountDetails(); break;
-//                 case 5: updateContact(); break;
-//                 case 6:
-//                     System.out.println("Thank you for using our Banking System. Goodbye!");
-//                     return;
-//                 default:
-//                     System.out.println("Invalid choice! Try again.");
-//             }
-//         }
-//     }
+    private static Scanner sc = new Scanner(System.in);
+    private static Student[] students = new Student[100];
+    private static int count = 0;
 
-//     private static void createAccount() {
-//         System.out.print("Enter account holder name: ");
-//         String name = sc.nextLine();
+    public static void main(String[] args) {
+        mainMenu();
+        sc.close();
+    }
 
-//         System.out.print("Enter initial deposit amount: ");
-//         double amount = sc.nextDouble();
-//         sc.nextLine();
+    public static void mainMenu() {
+        while (true) {
+            try {
+                System.out.println("\n===== Student Result Management System =====");
+                System.out.println("1. Add Student");
+                System.out.println("2. Show Student Details");
+                System.out.println("3. Exit");
+                System.out.print("Enter your choice: ");
 
-//         System.out.print("Enter email address: ");
-//         String email = sc.nextLine();
+                int choice = sc.nextInt();
+                sc.nextLine();
 
-//         System.out.print("Enter phone number: ");
-//         String phone = sc.nextLine();
+                switch (choice) {
+                    case 1 -> addStudent();
+                    case 2 -> showStudentDetails();
+                    case 3 -> {
+                        System.out.println("Closing System... Goodbye!");
+                        return;
+                    }
+                    default -> System.out.println("Invalid choice! Try again.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Error: Please enter a valid number!");
+                sc.nextLine();
+            } finally {
+                System.out.println("-- Operation Completed --");
+            }
+        }
+    }
 
-//         Account account = new Account(accountNumberGenerator++, name, amount, email, phone);
-//         accounts[accountCount++] = account;
+    private static void addStudent() {
+        try {
+            System.out.print("Enter Roll Number: ");
+            int roll = sc.nextInt();
+            sc.nextLine();
 
-//         System.out.println("Account created successfully with Account Number: " + account.getAccountNumber());
-//     }
+            System.out.print("Enter Student Name: ");
+            String name = sc.nextLine();
 
-//     private static Account findAccount(int accNo) {
-//         for (int i = 0; i < accountCount; i++) {
-//             if (accounts[i].getAccountNumber() == accNo) {
-//                 return accounts[i];
-//             }
-//         }
-//         return null;
-//     }
+            int[] marks = new int[3];
+            for (int i = 0; i < 3; i++) {
+                System.out.print("Enter marks for subject " + (i + 1) + ": ");
+                marks[i] = sc.nextInt();
+            }
 
-//     private static void performDeposit() {
-//         System.out.print("Enter account number: ");
-//         int accNo = sc.nextInt();
-//         System.out.print("Enter deposit amount: ");
-//         double amount = sc.nextDouble();
+            Student st = new Student(roll, name, marks);
+            st.validateMarks(); // Validate using custom exception
 
-//         Account account = findAccount(accNo);
-//         if (account != null)
-//             account.deposit(amount);
-//         else
-//             System.out.println("Account not found!");
-//     }
+            students[count++] = st;
+            System.out.println("Student added successfully!");
 
-//     private static void performWithdrawal() {
-//         System.out.print("Enter account number: ");
-//         int accNo = sc.nextInt();
-//         System.out.print("Enter withdrawal amount: ");
-//         double amount = sc.nextDouble();
+        } catch (InvalidMarksException e) {
+            System.out.println("Error: " + e.getMessage() + ". Returning to main menu...");
+        } catch (Exception e) {
+            System.out.println("Unexpected Error: " + e.getMessage());
+        }
+    }
 
-//         Account account = findAccount(accNo);
-//         if (account != null)
-//             account.withdraw(amount);
-//         else
-//             System.out.println("Account not found!");
-//     }
+    private static void showStudentDetails() {
+        System.out.print("Enter Roll Number to search: ");
+        int roll = sc.nextInt();
 
-//     private static void showAccountDetails() {
-//         System.out.print("Enter account number: ");
-//         int accNo = sc.nextInt();
-
-//         Account account = findAccount(accNo);
-//         if (account != null)
-//             account.displayAccountDetails();
-//         else
-//             System.out.println("Account not found!");
-//     }
-
-//     private static void updateContact() {
-//         System.out.print("Enter account number: ");
-//         int accNo = sc.nextInt();
-//         sc.nextLine();
-
-//         Account account = findAccount(accNo);
-//         if (account != null) {
-//             System.out.print("Enter new email: ");
-//             String email = sc.nextLine();
-//             System.out.print("Enter new phone number: ");
-//             String phone = sc.nextLine();
-//             account.updateContactDetails(email, phone);
-//         } else {
-//             System.out.println("Account not found!");
-//         }
-//     }
-// }
+        for (int i = 0; i < count; i++) {
+            if (students[i].getRollNumber() == roll) {
+                students[i].displayResult();
+                return;
+            }
+        }
+        System.out.println("Student Not Found!");
+    }
+}
